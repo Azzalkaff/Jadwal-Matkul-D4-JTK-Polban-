@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Kuliah Semester 1 - TKJ Polban</title>
+    
+    <!-- Impor Font Inter dari Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* ================================================ */
+        /* 1. CSS Variables & Global Styles (Fondasi Desain) */
+        /* ================================================ */
+        :root {
+            /* Palet Warna "Pelangi" untuk Mata Kuliah */
+            --color-ddp: #3B82F6; /* Biru */
+            --color-konsep-tik: #22C55E; /* Hijau */
+            --color-mat-terapan: #F97316; /* Jingga */
+            --color-mat-diskrit: #EAB308; /* Kuning */
+            --color-komputasi-kognitif: #6366F1; /* Nila */
+            --color-pancasila: #EF4444; /* Merah */
+            --color-bhs-inggris: #8B5CF6; /* Ungu */
+
+            /* Palet Warna UI */
+            --color-background: #FFFFFF;
+            --color-text-dark: #111827;
+            --color-text-light: #FFFFFF;
+            --color-text-subtle: #6B7280;
+            --color-button-default-bg: #F3F4F6;
+            --color-border: #E5E7EB;
+
+            /* Tipografi */
+            --font-family-main: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        /* Reset & Pengaturan Dasar */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family-main);
+            background-color: var(--color-background);
+            color: var(--color-text-dark);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.6;
+        }
+        
+        /* ================================================ */
+        /* 2. Layout Utama & Kontainer Aplikasi             */
+        /* ================================================ */
+        .app-container {
+            max-width: 640px; /* Lebar optimal untuk konten teks, ideal untuk mobile-first */
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .app-header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+
+        .app-header p {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--color-text-subtle);
+        }
+
+        /* ================================================ */
+        /* 3. Sistem View (Mengontrol Alur Pengguna)      */
+        /* ================================================ */
+        .view {
+            width: 100%;
+            display: none; /* Semua view disembunyikan secara default */
+            flex-direction: column;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .view.active {
+            display: flex; /* Hanya view yang aktif yang ditampilkan */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ================================================ */
+        /* 4. Komponen Tombol Navigasi                      */
+        /* ================================================ */
+        .nav-button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* Jarak antar tombol */
+            width: 100%;
+        }
+
+        .nav-button {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-family: var(--font-family-main);
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            background-color: var(--color-button-default-bg);
+            color: var(--color-text-dark);
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.1s ease;
+        }
+
+        .nav-button:hover {
+            background-color: var(--color-text-dark);
+            color: var(--color-text-light);
+        }
+        
+        .nav-button:active {
+            transform: scale(0.98);
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--color-text-subtle);
+            background-color: transparent;
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .back-button:hover {
+            background-color: var(--color-button-default-bg);
+            color: var(--color-text-dark);
+        }
+
+        /* ================================================ */
+        /* 5. Komponen Kartu Jadwal & Detail                */
+        /* ================================================ */
+        .schedule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .schedule-card {
+            background-color: var(--card-bg-color, var(--color-button-default-bg));
+            color: var(--color-text-light);
+            padding: 1.5rem;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            animation: slideUpFadeIn 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        /* Animasi muncul kartu satu per satu */
+        .schedule-card:nth-child(1) { animation-delay: 0.1s; }
+        .schedule-card:nth-child(2) { animation-delay: 0.2s; }
+        .schedule-card:nth-child(3) { animation-delay: 0.3s; }
+        .schedule-card:nth-child(4) { animation-delay: 0.4s; }
+        .schedule-card:nth-child(5) { animation-delay: 0.5s; }
+
+
+        @keyframes slideUpFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background-color: rgba(0, 0, 0, 0.15);
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .course-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .card-details {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .detail-item .icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* ================================================ */
+        /* 6. Komponen Kartu Spesial (Istirahat, Kosong)    */
+        /* ================================================ */
+        .break-card {
+            text-align: center;
+            padding: 1rem 0;
+        }
+        
+        .break-card-content {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            color: var(--color-text-subtle);
+            font-size: 0.8rem;
+            font-weight: 500;
+            position: relative;
+            padding: 0 1rem;
+        }
+
+        .break-card-content::before,
+        .break-card-content::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40px;
+            height: 1px;
+            background-color: var(--color-border);
+        }
+
+        .break-card-content::before { left: -40px; }
+        .break-card-content::after { right: -40px; }
+
+
+        .no-schedule-card {
+            background-color: var(--color-button-default-bg);
+            color: var(--color-text-subtle);
+            text-align: center;
+            padding: 3rem 1.5rem;
+            border-radius: 16px;
+            font-weight: 500;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <main class="app-container">
+        <!-- HEADER APLIKASI -->
+        <header class="app-header">
+            <h1>Mata Kuliah Semester 1</h1>
+            <p>D4 Teknik Komputer dan Informatika<br>Politeknik Negeri Bandung</p>
+        </header>
+
+        <!-- VIEW 1: PEMILIHAN KELAS -->
+        <div id="class-selection-view" class="view active">
+            <div id="class-button-container" class="nav-button-container">
+                <!-- Tombol Kelas akan di-generate oleh JavaScript -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: PEMILIHAN HARI -->
+        <div id="day-selection-view" class="view">
+            <!-- Tombol Kembali & Tombol Hari akan di-generate oleh JavaScript -->
+        </div>
+
+        <!-- VIEW 3: TAMPILAN JADWAL -->
+        <div id="schedule-display-view" class="view">
+            <!-- Tombol Kembali & Daftar Jadwal akan di-generate oleh JavaScript -->
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // =====================================================================
+        // 1. DATA & KONFIGURASI APLIKASI
+        // =====================================================================
+
+        // Data utama jadwal kuliah
+        const scheduleData = {
+          "1A": {
+            "Senin": [
+              { "waktu": "07:00-07:50", "kode": "25TI1103", "nama": "Konsep Teknologi Informasi dan Komunikasi", "tipe": "TE", "dosen": "Bambang Wisnuadhi", "ruangan": "D223-Kelas" },
+              { "waktu": "08:40-10:40", "kode": "25TI1101", "nama": "Dasar-Dasar Pemrograman", "tipe": "TE", "dosen": "Ani Rahmani", "ruangan": "D223-Kelas" },
+              { "waktu": "10:40-12:20", "kode": "25TI1101", "nama": "Dasar-Dasar Pemrograman", "tipe": "PR", "dosen": "Wendi Wirasta", "ruangan": "D115-Lab. PjBL-1" },
+              { "waktu": "13:00-14:40", "kode": "25TI1101", "nama": "Dasar-Dasar Pemrograman", "tipe": "PR", "dosen": "Wendi Wirasta", "ruangan": "D115-Lab. PjBL-1" }
+            ],
+            "Selasa": [
+              { "waktu": "07:00-08:40", "kode": "25KU1008", "nama": "Matematika Terapan A", "tipe": "TE", "dosen": "Eddy B. Soewono", "ruangan": "D223-Kelas" },
+              { "waktu": "08:40-10:40", "kode": "25KU1008", "nama": "Matematika Terapan A", "tipe": "PR", "dosen": "Aprianti Nanda S", "ruangan": "D115-Lab. PjBL-1" },
+              { "waktu": "10:40-12:20", "kode": "25TI1104", "nama": "Matematika Diskrit Dasar", "tipe": "TE", "dosen": "Suprihanto", "ruangan": "D223-Kelas" },
+              { "waktu": "13:00-14:40", "kode": "25TI1104", "nama": "Matematika Diskrit Dasar", "tipe": "PR", "dosen": "Aprianti Nanda S", "ruangan": "D115-Lab. PjBL-1" }
+            ],
+            "Rabu": [
+              { "waktu": "07:00-08:40", "kode": "25TI1102", "nama": "Komputasi Kognitif", "tipe": "TE", "dosen": "Jonner Hutahaean", "ruangan": "D223-Kelas" },
+              { "waktu": "13:00-14:40", "kode": "25KU0002", "nama": "Pendidikan Pancasila", "tipe": "TE", "dosen": "Tarekh Febriana Putra", "ruangan": "D223-Kelas" }
+            ],
+            "Kamis": [
+              { "waktu": "07:00-10:40", "kode": "25TI1103", "nama": "Konsep Teknologi Informasi dan Komunikasi", "tipe": "PR", "dosen": "Djoko Cahyo U. L", "ruangan": "H501-Lab. TI" },
+              { "waktu": "13:00-15:30", "kode": "25IG1017", "nama": "Bahasa Inggris 1", "tipe": "TE/PR", "dosen": "Linda", "ruangan": "D223-Kelas" }
+            ],
+            "Jumat": []
+          },
+          "1B": {
+            "Senin": [
+              { "waktu": "07:00-08:40", "kode": "25TI1101", "nama": "Dasar-Dasar Pemrograman", "tipe": "TE", "dosen": "Ani Rahmani", "ruangan": "D224-Kelas" },
+              { "waktu": "08:40-09:30", "kode": "25TI1103", "nama": "Konsep Teknologi Informasi dan Komunikasi", "tipe": "TE", "dosen": "Bambang Wisnuadhi", "ruangan": "D224-Kelas" },
+              { "waktu": "09:50-12:20", "kode": "25TI1101", "nama": "Dasar-Dasar Pemrograman", "tipe": "PR", "dosen": "Asri Maspupah", "ruangan": "H502-Lab. AI" },
+              { "waktu": "13:00-13:50", "kode": "25TI1101", "nama": "Dasar-Dasar Pemrograman", "tipe": "PR", "dosen": "Asri Maspupah", "ruangan": "H502-Lab. AI" }
+            ],
+            "Selasa": [
+              { "waktu": "08:40-10:40", "kode": "25TI1102", "nama": "Komputasi Kognitif", "tipe": "TE", "dosen": "Jonner Hutahaean", "ruangan": "D224-Kelas" },
+              { "waktu": "10:40-12:20", "kode": "25TI1104", "nama": "Matematika Diskrit Dasar", "tipe": "PR", "dosen": "Aprianti Nanda S", "ruangan": "D106-Lab. SDB" },
+              { "waktu": "13:00-14:40", "kode": "25TI1104", "nama": "Matematika Diskrit Dasar", "tipe": "TE", "dosen": "Suprihanto", "ruangan": "D224-Kelas" }
+            ],
+            "Rabu": [
+              { "waktu": "07:00-09:30", "kode": "25IG1017", "nama": "Bahasa Inggris 1", "tipe": "TE/PR", "dosen": "Faza", "ruangan": "D224-Kelas" },
+              { "waktu": "13:00-16:40", "kode": "25TI1103", "nama": "Konsep Teknologi Informasi dan Komunikasi", "tipe": "PR", "dosen": "Djoko Cahyo U. L", "ruangan": "H501-Lab. TI" }
+            ],
+            "Kamis": [
+              { "waktu": "07:00-08:40", "kode": "25KU1008", "nama": "Matematika Terapan A", "tipe": "TE", "dosen": "Eddy B. Soewono", "ruangan": "D224-Kelas" },
+              { "waktu": "08:40-10:40", "kode": "25KU1008", "nama": "Matematika Terapan A", "tipe": "PR", "dosen": "Aprianti Nanda S", "ruangan": "D102-Lab. MT" },
+              { "waktu": "10:40-12:20", "kode": "25KU0002", "nama": "Pendidikan Pancasila", "tipe": "TE", "dosen": "Cahaya Juniarti", "ruangan": "D224-Kelas" }
+            ],
+            "Jumat": []
+          },
+          "1C": {
+            "Senin": [
+              { "waktu": "07:50-08:40", "kode": "25TI1103", "nama": "Konsep Teknologi Informasi dan Komunikasi", "tipe": "TE", "dosen": "Bambang Wisnuadhi", "ruangan": "D217-Kelas" },
+              { "waktu": "14:40-18:20", "kode": "25TI1101", "nama": "Dasar-Dasar Pemrograman", "tipe": "PR", "dosen": "Wendi Wirasta", "ruangan": "D107-Lab. RPL" }
+            ],
+            "Selasa": [
+              { "waktu": "07:00-08:40", "kode": "25TI1104", "nama": "Matematika Diskrit Dasar", "tipe": "TE", "dosen": "Yudi Widhiyasana", "ruangan": "D217-Kelas" },
+              { "waktu": "09:50-11:30", "kode": "25KU1008", "nama": "Matematika Terapan A", "tipe": "PR", "dosen": "Siti Dwi Setiarini; Muhammad Rizqi S", "ruangan": "D116-Lab. PjBL-2" },
+              { "waktu": "13:00-14:40", "kode": "25TI1102", "nama": "Komputasi Kognitif", "tipe": "TE", "dosen": "Ani Rahmani", "ruangan": "D217-Kelas" },
+              { "waktu": "15:50-17:30", "kode": "25TI1104", "nama": "Matematika Diskrit Dasar", "tipe": "PR", "dosen": "Aprianti Nanda S", "ruangan": "D107-Lab. RPL" }
+            ],
+            "Rabu": [
+              { "waktu": "07:00-08:40", "kode": "25KU1008", "nama": "Matematika Terapan A", "tipe": "TE", "dosen": "Eddy B. Soewono", "ruangan": "D217-Kelas" },
+              { "waktu": "09:50-12:20", "kode": "25IG1017", "nama": "Bahasa Inggris 1", "tipe": "TE/PR", "dosen": "Faza", "ruangan": "D217-Kelas" }
+            ],
+            "Kamis": [
+              { "waktu": "08:40-10:40", "kode": "25KU0002", "nama": "Pendidikan Pancasila", "tipe": "TE", "dosen": "Tarekh Febriana Putra", "ruangan": "D217-Kelas" }
+            ],
+            "Jumat": [
+              { "waktu": "07:00-08:40", "kode": "25TI1101", "nama": "Dasar-Dasar Pemrograman", "tipe": "TE", "dosen": "Ade Chandra Nugraha", "ruangan": "D217-Kelas" },
+              { "waktu": "13:00-16:40", "kode": "25TI1103", "nama": "Konsep Teknologi Informasi dan Komunikasi", "tipe": "PR", "dosen": "Irwan Setiawan", "ruangan": "D107-Lab. RPL" }
+            ]
+          },
+          "1D": {
+            "Senin": [
+              { "waktu": "07:00-08:40", "kode": "25TI1101", "nama": "Dasar-Dasar Pemrograman", "tipe": "TE", "dosen": "Ade Chandra Nugraha", "ruangan": "D219-Kelas" },
+              { "waktu": "08:40-12:20", "kode": "25TI1101", "nama": "Dasar-Dasar Pemrograman", "tipe": "PR", "dosen": "Ade Hodijah", "ruangan": "H501-Lab. TI" },
+              { "waktu": "13:00-13:50", "kode": "25TI1103", "nama": "Konsep Teknologi Informasi dan Komunikasi", "tipe": "TE", "dosen": "Bambang Wisnuadhi", "ruangan": "D219-Kelas" }
+            ],
+            "Selasa": [
+              { "waktu": "07:00-08:40", "kode": "25KU1008", "nama": "Matematika Terapan A", "tipe": "PR", "dosen": "Siti Dwi Setiarini; Muhammad Rizqi S", "ruangan": "D115-Lab. PjBL-1" },
+              { "waktu": "10:40-12:20", "kode": "25TI1102", "nama": "Komputasi Kognitif", "tipe": "TE", "dosen": "Ani Rahmani", "ruangan": "D219-Kelas" },
+              { "waktu": "13:50-15:30", "kode": "25TI1104", "nama": "Matematika Diskrit Dasar", "tipe": "TE", "dosen": "Yudi Widhiyasana", "ruangan": "D219-Kelas" }
+            ],
+            "Rabu": [
+              { "waktu": "14:40-16:40", "kode": "25KU0002", "nama": "Pendidikan Pancasila", "tipe": "TE", "dosen": "Cahaya Juniarti", "ruangan": "D219-Kelas" }
+            ],
+            "Kamis": [
+              { "waktu": "07:00-08:40", "kode": "25TI1104", "nama": "Matematika Diskrit Dasar", "tipe": "PR", "dosen": "Aprianti Nanda S", "ruangan": "D115-Lab. PjBL-1" },
+              { "waktu": "10:40-12:20", "kode": "25KU1008", "nama": "Matematika Terapan A", "tipe": "TE", "dosen": "Eddy B. Soewono", "ruangan": "D219-Kelas" },
+              { "waktu": "13:00-16:40", "kode": "25TI1103", "nama": "Konsep Teknologi Informasi dan Komunikasi", "tipe": "PR", "dosen": "Irwan Setiawan", "ruangan": "D115-Lab. PjBL-1" }
+            ],
+            "Jumat": [
+              { "waktu": "07:00-09:30", "kode": "25IG1017", "nama": "Bahasa Inggris 1", "tipe": "TE/PR", "dosen": "Faza", "ruangan": "D219-Kelas" }
+            ]
+          }
+        };
+
+        // Pemetaan nama mata kuliah ke variabel warna CSS
+        const courseColors = {
+            "Dasar-Dasar Pemrograman": "var(--color-ddp)",
+            "Konsep Teknologi Informasi dan Komunikasi": "var(--color-konsep-tik)",
+            "Matematika Terapan A": "var(--color-mat-terapan)",
+            "Matematika Diskrit Dasar": "var(--color-mat-diskrit)",
+            "Komputasi Kognitif": "var(--color-komputasi-kognitif)",
+            "Pendidikan Pancasila": "var(--color-pancasila)",
+            "Bahasa Inggris 1": "var(--color-bhs-inggris)",
+        };
+
+        // Ikon SVG untuk detail kartu (disimpan di sini agar mandiri)
+        const icons = {
+            user: `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>`,
+            location: `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>`,
+            tag: `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5a2 2 0 012 2v5a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"></path></svg>`,
+            clock: `<svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`,
+        };
+        
+        // Variabel untuk menyimpan state aplikasi
+        let selectedClass = null;
+        let selectedDay = null;
+
+        // Referensi ke elemen DOM utama
+        const views = {
+            class: document.getElementById('class-selection-view'),
+            day: document.getElementById('day-selection-view'),
+            schedule: document.getElementById('schedule-display-view'),
+        };
+
+        // =====================================================================
+        // 2. FUNGSI HELPER (Kalkulasi & Utilitas)
+        // =====================================================================
+
+        /**
+         * Mengubah string waktu "HH:MM" menjadi total menit dari tengah malam.
+         * @param {string} timeStr - String waktu, e.g., "07:50"
+         * @returns {number} - Total menit.
+         */
+        const parseTimeToMinutes = (timeStr) => {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        };
+
+        /**
+         * Menghitung durasi antara dua waktu dan memformatnya.
+         * @param {string} startTime - Waktu mulai, e.g., "07:00"
+         * @param {string} endTime - Waktu selesai, e.g., "08:40"
+         * @returns {string} - Durasi terformat, e.g., "1 jam 40 mnt"
+         */
+        const calculateDuration = (startTime, endTime) => {
+            const startMinutes = parseTimeToMinutes(startTime);
+            const endMinutes = parseTimeToMinutes(endTime);
+            const durationMinutes = endMinutes - startMinutes;
+
+            if (durationMinutes <= 0) return "";
+
+            const hours = Math.floor(durationMinutes / 60);
+            const minutes = durationMinutes % 60;
+
+            let result = [];
+            if (hours > 0) result.push(`${hours} jam`);
+            if (minutes > 0) result.push(`${minutes} mnt`);
+            
+            return result.join(' ');
+        };
+
+
+        // =====================================================================
+        // 3. FUNGSI MANAJEMEN VIEW (Navigasi Aplikasi)
+        // =====================================================================
+
+        /**
+         * Menampilkan view yang spesifik dan menyembunyikan yang lain.
+         * @param {string} viewToShow - Kunci dari objek 'views' ('class', 'day', 'schedule')
+         */
+        const showView = (viewToShow) => {
+            Object.values(views).forEach(view => view.classList.remove('active'));
+            views[viewToShow].classList.add('active');
+            window.scrollTo(0, 0); // Scroll ke atas setiap ganti view
+        };
+
+        // =====================================================================
+        // 4. FUNGSI RENDER (Membangun & Menampilkan UI)
+        // =====================================================================
+        
+        /**
+         * Membuat dan menampilkan tombol-tombol pemilihan kelas.
+         */
+        const renderClassSelection = () => {
+            const container = views.class.querySelector('#class-button-container');
+            container.innerHTML = ''; // Kosongkan kontainer
+            const classes = Object.keys(scheduleData);
+
+            classes.forEach(className => {
+                const button = document.createElement('button');
+                button.className = 'nav-button';
+                button.textContent = className;
+                button.onclick = () => {
+                    selectedClass = className;
+                    renderDaySelection();
+                    showView('day');
+                };
+                container.appendChild(button);
+            });
+        };
+        
+        /**
+         * Membuat dan menampilkan tombol-tombol pemilihan hari.
+         */
+        const renderDaySelection = () => {
+            views.day.innerHTML = ''; // Kosongkan kontainer
+            const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+
+            // Tombol kembali ke pemilihan kelas
+            const backButton = document.createElement('button');
+            backButton.className = 'back-button';
+            backButton.innerHTML = `&larr; Pilih Kelas Lain`;
+            backButton.onclick = () => {
+                selectedClass = null;
+                showView('class');
+            };
+            views.day.appendChild(backButton);
+            
+            // Kontainer untuk tombol hari
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'nav-button-container';
+            views.day.appendChild(buttonContainer);
+
+            days.forEach(day => {
+                const button = document.createElement('button');
+                button.className = 'nav-button';
+                button.textContent = day;
+                button.onclick = () => {
+                    selectedDay = day;
+                    renderScheduleDisplay();
+                    showView('schedule');
+                };
+                buttonContainer.appendChild(button);
+            });
+        };
+
+        /**
+         * Membuat dan menampilkan jadwal untuk kelas dan hari yang dipilih.
+         */
+        const renderScheduleDisplay = () => {
+            views.schedule.innerHTML = ''; // Kosongkan kontainer
+            
+            // Tombol kembali ke pemilihan hari
+            const backButton = document.createElement('button');
+            backButton.className = 'back-button';
+            backButton.innerHTML = `&larr; Pilih Hari Lain`;
+            backButton.onclick = () => {
+                selectedDay = null;
+                showView('day');
+            };
+            views.schedule.appendChild(backButton);
+
+            const scheduleList = document.createElement('div');
+            scheduleList.className = 'schedule-list';
+            views.schedule.appendChild(scheduleList);
+            
+            const schedule = scheduleData[selectedClass]?.[selectedDay] || [];
+
+            // Kasus jika tidak ada jadwal
+            if (schedule.length === 0) {
+                scheduleList.innerHTML = `<div class="no-schedule-card">Tidak ada jadwal untuk hari ini.</div>`;
+                return;
+            }
+            
+            // Proses setiap mata kuliah dan sisipkan kartu istirahat jika ada jeda
+            schedule.forEach((course, index) => {
+                const [startTime, endTime] = course.waktu.split('-');
+                const duration = calculateDuration(startTime, endTime);
+                const cardColor = courseColors[course.nama] || 'var(--color-text-subtle)';
+
+                // Buat HTML untuk kartu mata kuliah
+                const courseCard = document.createElement('div');
+                courseCard.className = 'schedule-card';
+                courseCard.style.setProperty('--card-bg-color', cardColor);
+                courseCard.innerHTML = `
+                    <div class="card-header">
+                        <span class="tag">${course.waktu}</span>
+                        <span class="tag">${course.tipe}</span>
+                    </div>
+                    <h2 class="course-name">${course.nama}</h2>
+                    <ul class="card-details">
+                        <li class="detail-item">${icons.user}<span>${course.dosen}</span></li>
+                        <li class="detail-item">${icons.location}<span>${course.ruangan}</span></li>
+                        <li class="detail-item">${icons.tag}<span>${course.kode}</span></li>
+                        ${duration ? `<li class="detail-item">${icons.clock}<span>${duration}</span></li>` : ''}
+                    </ul>
+                `;
+                scheduleList.appendChild(courseCard);
+
+                // Cek jeda waktu dengan mata kuliah berikutnya
+                const nextCourse = schedule[index + 1];
+                if (nextCourse) {
+                    const currentEndTime = endTime;
+                    const nextStartTime = nextCourse.waktu.split('-')[0];
+                    const breakDuration = calculateDuration(currentEndTime, nextStartTime);
+
+                    if (breakDuration) {
+                        const breakCard = document.createElement('div');
+                        breakCard.className = 'break-card';
+                        breakCard.innerHTML = `
+                            <div class="break-card-content">
+                                <span>${currentEndTime} - ${nextStartTime}</span>
+                                <strong>${breakDuration} istirahat</strong>
+                            </div>
+                        `;
+                        scheduleList.appendChild(breakCard);
+                    }
+                }
+            });
+        };
+        
+        // =====================================================================
+        // 5. INISIALISASI APLIKASI
+        // =====================================================================
+        
+        /**
+         * Fungsi utama untuk memulai aplikasi.
+         */
+        const init = () => {
+            renderClassSelection();
+            showView('class');
+        };
+
+        // Jalankan aplikasi setelah DOM siap
+        init();
+
+    });
+    </script>
+</body>
+</html>
